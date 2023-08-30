@@ -1,0 +1,29 @@
+#Written 16/03/2020
+# Starting and connecting to SQL Server when it won't start
+# First check the SQL Server error log file - can access even when SQL is off.
+
+To start SQL when the system databases are unaccessible (for example model or tempdb cannot start) find the directory that holds the SQL exe by looking within services.msc,
+right clicking on the SQL service for the instance you want and Properies> General has the location. In command prompt cd to that location, usually "Binn" and run:
+
+    sqlservr.exe -s<InstanceName> -T3608 -T3609
+
+#Note there is no space after s
+
+3608	Recovers master database only. Skips automatic recovery (at startup) for all databases except the master database.
+3609	Skips the creation of the tempdb database at startup. Use this trace flag if the tempdb database is problematic or problems exist in the model database.
+-c	Start as a console and not service.
+-f	Minimal configuration mode.
+
+Once SQL Server has started, open a new (additional) command prompt and use the below:
+
+    SQLCMD -S server\instance -E
+        For example
+    SQLCMD -S GBRFIN01N\FIN -E
+
+#Note the capital S, which is case sensitive
+Adding a -A starts it with a Dedicated Admin connection
+
+Congratulations, you're now connected to SQL Server via SQLCMD. After every command you'll need to type GO and commands can be multi-line.
+You can attempt to bring up the problem database from here, for example:
+        RESTORE DATABASE MODEL WITH RECOVERY.
+That may work or may give you a more helpful error message.
