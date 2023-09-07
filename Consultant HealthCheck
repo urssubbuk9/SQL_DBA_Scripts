@@ -1,0 +1,56 @@
+Problem Statement
+Customers
+Have:
+
+Customers have SQL Server Versions from SQL Server 2000 to the present Date
+Need:
+
+A Health check A cost effective Healthcheck that aligns with recommended practices
+A prioritized list of items that need remediation
+A roadmap of short , medium and long term goals
+Do not always:
+
+give local admin access to consultants
+give sysadmin access to consultants
+allow running of scripts on production SQL Servers
+allow PowerShell scripts to be run
+Allow 3rd party scripts to be run
+Do:
+
+Expect some knowledge handover
+Coeo
+Have:
+
+a lot of different scripts between support and consulting
+Access to a lot of community scripts
+[SQL Tiger Toolbox ](GitHub - microsoft/tigertoolbox: Toolbox repository for Tiger team )
+[Brent Ozar](How to Do a Free SQL Server Health Check - Brent Ozar Unlimited® )
+[Glen Berry](Resources | Glenn's SQL Server Performance (glennsqlperformance.com) )
+Access to a lot of community tools
+[SQLDiag](SQLdiag Utility - SQL Server | Microsoft Docs )
+[PSSDIAG](PSSDIAG data collection utility (microsoft.com) )
+[Performance Analysis of Logs (PAL)](Using the Performance Analysis of Logs (PAL) Tool - BizTalk Server | Microsoft Docs )
+[SQL Assessment API](SQL Server Assessment API - SQL Server | Microsoft Docs )
+Do not:
+
+Have the bandwidth to create and maintain a large library of scripts
+Do:
+
+Have a basic Healthcheck document
+Have a basic Support onboarding script
+Need:
+
+To be able to deliver a health check under the following circumstances:
+Direct access to the SQL Server & Not
+The ability to run PowerShell scripts & Not
+Access to the Operating system of the virtual machine & Not
+PSRemoting Enabled & Not
+WMI Enabled & Not
+Running from a management VM
+Running from a user desktop
+To be able to store the output of the Healthcheck without PII
+To be able to upload the output to Coeo through one of the following
+SFTP
+Citrix Sharefile
+Azure SQL Database Upload
+Azure Storage Account Upload
