@@ -1,0 +1,37 @@
+This can be used as a guide but it is in development
+Errors
+2601 Cannot insert duplicate key row in object '%.*ls' with unique index '%.*ls'
+20598 The row was not found at the Subscriber when applying the replicated command.
+2627 Violation of PRIMARY KEY constraint 'PK__'. Cannot insert duplicate key in object 'dbo.'.
+1. Using below command also we can get error details
+Use Distribution
+go
+
+select * from dbo.MSrepl_errors where error_code in ('2601','2627','20598')
+
+2. Now Copy "Sequence Number" form the error and use in below query
+SELECT  art.publisher_id ,
+        art.publisher_db ,
+        db.id as publisher_database_id ,
+        art.article ,
+        art.article_id  ,
+        art.destination_object  ,
+        art.source_owner  ,
+        art.source_object,
+        command_id
+FROM    distribution.dbo.MSarticles AS art
+        JOIN distribution.dbo.MSrepl_commands AS com
+        ON art.Article_id = com.Article_id
+	join distribution.dbo.MSpublisher_databases as db
+	on art.publisher_db = db.publisher_db
+WHERE   com.xact_seqno = <?>
+
+3. The above query will return publisher_database_id and article_id which we will use in below query
+EXEC distribution.dbo.sp_browsereplcmds
+     @xact_seqno_start = '<?>' ,
+     @xact_seqno_end = '<?>' ,
+     @publisher_database_id = <?> ,
+     @article_id = <?> ,
+     @command_id = <?>
+
+It above query will return Command value, this is the transaction which is being complained about.
