@@ -1,0 +1,70 @@
+1. Run the script to find out latency
+-- Run script for high latency -- Latency between publication and distribution and between distribution and subscriber.
+use distribution
+GO
+select publisher_commit,
+       distributor_commit,
+       datediff(SS, publisher_commit, distributor_commit) 'Latency bw Pub and Dis (seconds)',
+       subscriber_commit,
+       datediff(SS, distributor_commit, subscriber_commit) 'Latency bw Dis and Sub (seconds)',
+P.publication
+from MSTracer_tokens TT
+join MSTracer_history 
+    on tracer_id = parent_tracer_id
+join MSpublications P on TT.publication_id = P.publication_id 
+order by [subscriber_commit] DESC
+
+
+--Undistributed commands
+
+USE distribution;
+SET NOCOUNT ON;
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+SELECT DISTINCT
+@@SERVERNAME
+--,a.article_id
+,a.Article
+,p.Publication
+,[name]
+--,s.agent_id
+,s.UndelivCmdsInDistDB
+,s.DelivCmdsInDistDB
+,UndelivCmdsInDistDB + DelivCmdsInDistDB AS TotalTrans
+FROM dbo.MSdistribution_status AS s
+INNER JOIN dbo.MSdistribution_agents AS agents ON agents.[id]= s.agent_id
+INNER JOIN dbo.MSpublications AS p ON p.publication= agents.publication
+INNER JOIN dbo.MSarticles AS a ON a.article_id= s.article_id and p.publication_id= a.publication_id
+WHERE 1=1 AND s.UndelivCmdsInDistDB <> 0 AND agents.subscriber_db NOT LIKE'<ToIgnoreSubscriberDB>'
+--and p.publication like '%'
+--AND p.Publisher_db = ''
+--AND a.Article LIKE ''
+--AND p.Publication IN ('')
+--AND s.agent_id NOT IN ()
+ORDER BY s.UndelivCmdsInDistDB DESC
+OPTION(RECOMPILE);
+
+
+2. Check sp_whoisactive on all related machines
+-- What/how much is active
+
+sp_whoisactive
+
+-- Is there blocking
+
+sp_whoisactive @sort_order='[blocked_session_count] DESC'
+
+
+
+3. Verify if there are alot of replication workload using above including replication agent job executions
+--Nurse the replication through.
+
+Stop distribution agent jobs allow log reader to catch up then start distribution agent jobs.
+4. Check resource utilisations
+-- Could be vague but indicative
+
+If there’s a chance machines are struggling, check basic metrics of all related machines
+-- CPU
+-- RAM
+-- Disk IO
+-- Network latency
+What to do to fix it….it depends
