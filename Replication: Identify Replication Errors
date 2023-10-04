@@ -1,0 +1,36 @@
+This can be used as a guide but it is in development
+Replication Monitor
+Check if there's any replication agent job failing in last 1 day
+--Need to develop further to search for particular errors in messages.
+
+select s.job_id,s.name,s.enabled,c.name as categoryname,jh.sql_severity, js.step_name, jh.message, jh.run_date,jh.run_time,
+CASE jh.run_status
+WHEN 0 THEN 'Failed'
+WHEN 1 THEN 'Succeeded'
+WHEN 2 THEN 'Retry'
+WHEN 3 THEN 'Cancelled'
+WHEN 4 THEN 'In Progress'
+END AS ExecutionStatus
+from msdb.dbo.sysjobs s inner join msdb.dbo.syscategories c on s.category_id = c.category_id
+INNER JOIN msdb.dbo.sysjobsteps AS js
+   ON js.job_id = s.job_id
+INNER JOIN msdb.dbo.sysjobhistory AS jh
+   ON jh.job_id = s.job_id AND jh.step_id = js.step_id
+where c.name in ('REPL-Merge','REPL-Distribution','REPL-LogReader')
+AND jh.run_date >= CONVERT(CHAR(8), (SELECT DATEADD (DAY,(-1), GETDATE())), 112)
+--and jh.message like '%error%'
+and jh.run_status = 0
+Check MSrepl_errors
+USE [distribution]
+
+GO
+
+SELECT
+
+    [id], [time], [error_code], [error_text], [xact_seqno]
+
+FROM [dbo].[MSrepl_errors]
+
+ORDER BY [time] desc
+
+GO
